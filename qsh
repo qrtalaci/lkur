@@ -1,0 +1,4 @@
+#!/bin/bash
+PUB=$(cat id_rsa.pub)
+ssh $1 "echo $PUB >> .ssh/authorized_keys"
+ssh $1
