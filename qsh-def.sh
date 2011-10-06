@@ -2,16 +2,28 @@
 qsh()  {
   echo "`date` $@" >> ~/.qsh_history
   HOST=$1
-  scp -q $THISFILE $HOST:/tmp/$$qsh.sh
-  if [ $# -gt 1 ]; then
-    shift
-    PPAR="-c \"$@\""
+  RINST=/tmp/$$qsh.sh
+# test that the PublicKey authentication set properly
+  ssh -o PasswordAuthentication=no $HOST "echo 1 >/dev/null"
+  PK=$?
+  if [ $PK -eq 0 ]; then
+# init the remote instance
+    scp -q $THISFILE $HOST:$RINST
+    if [ $# -gt 1 ]; then
+      shift
+      PPAR="-c \"$@\""
+    else
+      PPAR="";
+    fi
+    # do the job
+    ssh -X -t -o ForwardAgent=yes $HOST "source /tmp/$$qsh.sh; env THISFILE=\"/tmp/$$qsh.sh\" bash $PPAR"
+# destroy the remote instance
+    ssh $HOST rm $RINST
   else
-    PPAR="";
+    echo "Public key authentication does not work properly, public key installation required."
   fi
-  ssh -X -t -o ForwardAgent=yes $HOST "source /tmp/$$qsh.sh; env THISFILE=\"/tmp/$$qsh.sh\" bash $PPAR"
-  ssh $HOST rm /tmp/$$qsh.sh
 }
+
 qshr()  {
   ssh -X -t -o ForwardAgent=yes $@ "sudo su root -c \"env SSH_AUTH_SOCK=\$SSH_AUTH_SOCK bash\""
 }
