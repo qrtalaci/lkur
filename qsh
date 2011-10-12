@@ -1,4 +1,22 @@
-#!/bin/bash
-PUB=$(cat id_rsa.pub)
-ssh $1 "echo $PUB >> .ssh/authorized_keys"
-ssh $1
+  echo "`date` $@" >> ~/.qsh_history
+  HOST=$1
+  RINST=/tmp/$$qsh.sh
+# test that the PublicKey authentication set properly
+  ssh -o PasswordAuthentication=no $HOST "echo 1 >/dev/null"
+  PK=$?
+  if [ $PK -eq 0 ]; then
+# init the remote instance
+    scp -q $THISFILE $HOST:$RINST
+    if [ $# -gt 1 ]; then
+      shift
+      PPAR="-c \"$@\""
+    else
+      PPAR="";
+    fi
+    # do the job
+    ssh -X -t -o ForwardAgent=yes $HOST "source /tmp/$$qsh.sh; env THISFILE=\"/tmp/$$qsh.sh\" bash $PPAR"
+# destroy the remote instance
+    ssh $HOST rm $RINST
+  else
+    echo "Public key authentication does not work properly, public key installation required."
+  fi

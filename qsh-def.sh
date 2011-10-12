@@ -23,13 +23,10 @@ qsh()  {
     echo "Public key authentication does not work properly, public key installation required."
   fi
 }
-
-qshr()  {
-  ssh -X -t -o ForwardAgent=yes $@ "sudo su root -c \"env SSH_AUTH_SOCK=\$SSH_AUTH_SOCK bash\""
-}
+export -f qsh
 ss() {
-  echo "Number of parameters: $#"
-  echo "Parameters value: $@"
+  #echo "Number of parameters: $#"
+  #echo "Parameters value: $@"
   if [ $# -gt 0 ]; then
     PPAR='-c '"\"$@\""
     eval "sudo env SSH_AUTH_SOCK=$SSH_AUTH_SOCK /bin/bash $PPAR"
@@ -39,5 +36,10 @@ ss() {
   fi
 }
 export -f ss
-export -f qshr
-export -f qsh
+sqsh() {
+  HOST=$1
+  shift
+  maradek=$@
+  screen -t $HOST bash -c "export THISFILE=$THISFILE && qsh $HOST $maradek" 
+}
+export -f sqsh 
