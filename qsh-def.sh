@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bashTH}.t
 qsh()  {
   echo "`date` $@" >> ~/.qsh_history
   HOST=$1
@@ -25,15 +25,28 @@ qsh()  {
 }
 export -f qsh
 ss() {
-  #echo "Number of parameters: $#"
-  #echo "Parameters value: $@"
+  BPID=$$
+  rm -f /tmp/q$BPID
+  TDISPLAY=$DISPLAY
+  XATH="$HOME/.Xauthority"
+  cp $XATH ${XATH}.t
+  chmod 644 ${XATH}.t
+  echo "export DISPLAY='$TDISPLAY'" >> /tmp/q$BPID
+  echo "export SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> /tmp/q$BPID
+  echo "export XAUTHORITY=/root/.Xauthority" >> /tmp/q$BPID
+  echo "xauth merge ${XATH}.t" >> /tmp/q$BPID
+  echo "chown root ${XATH}.t" >> /tmp/q$BPID
+  echo "rm -f ${XATH}.t" >> /tmp/q$BPID
+  echo "export THISFILE='$THISFILE'" >> /tmp/q$BPID
+  echo "source \$THISFILE" >> /tmp/q$BPID
+
   if [ $# -gt 0 ]; then
-    PPAR='-c '"\"$@\""
-    eval "sudo env SSH_AUTH_SOCK=$SSH_AUTH_SOCK /bin/bash $PPAR"
+    echo "bash -c \"$@\"" >> /tmp/q$BPID
   else
-    PPAR="";
-    sudo env SSH_AUTH_SOCK=$SSH_AUTH_SOCK /bin/bash $PPAR
+    echo "bash -i" >> /tmp/q$BPID
   fi
+  sudo /bin/bash /tmp/q$BPID
+  rm -f /tmp/q$BPID
 }
 export -f ss
 sqsh() {
@@ -43,3 +56,7 @@ sqsh() {
   screen -t $HOST bash -c "export THISFILE=$THISFILE && qsh $HOST $maradek" 
 }
 export -f sqsh 
+qshh() {
+  grep "$1" ~/.qsh_history
+}
+export -f qshh
