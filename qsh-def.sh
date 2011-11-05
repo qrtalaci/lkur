@@ -1,13 +1,14 @@
-#!/bin/bashTH}.t
+#!/bin/bash
 qsh()  {
   echo "`date` $@" >> ~/.qsh_history
   HOST=$1
   RINST=/tmp/$$qsh.sh
-# test that the PublicKey authentication set properly
+  # test that the PublicKey authentication set properly
   ssh -o PasswordAuthentication=no $HOST "echo 1 >/dev/null"
   PK=$?
   if [ $PK -eq 0 ]; then
 # init the remote instance
+    echo "PublicKey authentication is OK."
     scp -q $THISFILE $HOST:$RINST
     if [ $# -gt 1 ]; then
       shift
@@ -15,14 +16,53 @@ qsh()  {
     else
       PPAR="";
     fi
+
+    if [ -n "$QKEY" ]; then
+      QENV="QKEY=\""$QKEY"\""
+    fi
     # do the job
-    ssh -X -t -o ForwardAgent=yes $HOST "source /tmp/$$qsh.sh; env THISFILE=\"/tmp/$$qsh.sh\" bash $PPAR"
-# destroy the remote instance
+    ssh -X -t -o ForwardAgent=yes $HOST "source /tmp/$$qsh.sh; env THISFILE=\"/tmp/$$qsh.sh\" $QENV bash $PPAR"
+    # destroy the remote instance
     ssh $HOST rm $RINST
   else
     echo "Public key authentication does not work properly, public key installation required."
+    if [ -n "$QKEY" ]; then
+      echo "Copying key..."
+      echo "$QKEY" >> /tmp/$$key.pub
+      ssh-copy-id -i /tmp/$$key.pub $HOST
+    else
+      echo "Try to use standard keys..."
+      if [ -e ~/.ssh/id_rsa.pub ]; then
+        echo "id_rsa.pub exists"
+        ssh-copy-id -i ~/.ssh/id_rsa.pub $HOST
+      elif [ -e ~/.ssh/id_dsa.pub ]; then
+        echo "id_dsa.pub exists"
+        ssh-copy-id -i ~/.ssh/id_dsa.pub $HOST
+      else
+        echo "There is no key to use."
+      fi
+    fi  
+    ssh -o PasswordAuthentication=no $HOST "echo 1 >/dev/null"
+    PK=$?
+    if [ $PK -eq 0 ]; then
+      # init the remote instance
+      scp -q $THISFILE $HOST:$RINST
+      if [ $# -gt 1 ]; then
+        shift
+        PPAR="-c \"$@\""
+      else
+        PPAR="";
+      fi
+      # do the job
+      ssh -X -t -o ForwardAgent=yes $HOST "source /tmp/$$qsh.sh; env THISFILE=\"/tmp/$$qsh.sh\" bash $PPAR"
+      # destroy the remote instance
+      ssh $HOST rm $RINST
+    else
+      echo "Key installation failed."
+    fi  
   fi
 }
+
 export -f qsh
 ss() {
   BPID=$$
@@ -38,6 +78,7 @@ ss() {
   echo "chown root ${XATH}.t" >> /tmp/q$BPID
   echo "rm -f ${XATH}.t" >> /tmp/q$BPID
   echo "export THISFILE='$THISFILE'" >> /tmp/q$BPID
+  echo "export QKEY='$QKEY'" >> /tmp/q$BPID
   echo "source \$THISFILE" >> /tmp/q$BPID
 
   if [ $# -gt 0 ]; then
