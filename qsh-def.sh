@@ -130,3 +130,7 @@ qshh() {
   grep "$1" ~/.qsh_history
 }
 export -f qshh
+sr() {
+  source $THISFILE
+}
+export -f sr
