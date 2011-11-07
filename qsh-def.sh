@@ -1,5 +1,5 @@
 #!/bin/bash
-qsh()  {
+s()  {
   echo "`date` $@" >> ~/.qsh_history
   HOST=$1
   RINST=/tmp/$$qsh.sh
@@ -62,8 +62,7 @@ qsh()  {
     fi  
   fi
 }
-
-export -f qsh
+export -f s
 ss() {
   BPID=$$
   rm -f /tmp/q$BPID
@@ -75,8 +74,6 @@ ss() {
   echo "export SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> /tmp/q$BPID
   echo "export XAUTHORITY=/root/.Xauthority" >> /tmp/q$BPID
   echo "xauth merge ${XATH}.t" >> /tmp/q$BPID
-  echo "chown root ${XATH}.t" >> /tmp/q$BPID
-  echo "rm -f ${XATH}.t" >> /tmp/q$BPID
   echo "export THISFILE='$THISFILE'" >> /tmp/q$BPID
   echo "export QKEY='$QKEY'" >> /tmp/q$BPID
   echo "source \$THISFILE" >> /tmp/q$BPID
@@ -88,8 +85,40 @@ ss() {
   fi
   sudo /bin/bash /tmp/q$BPID
   rm -f /tmp/q$BPID
+  rm -f $XATH.t
 }
 export -f ss
+
+sm() {
+  if [ "`whoami`" != "root" ]; then
+    echo "non-root"
+    quser=$1
+    shift
+    BPID=$$
+    rm -f /tmp/q$BPID
+    TDISPLAY=$DISPLAY
+    XATH="$HOME/.Xauthority"
+    cp $XATH /tmp/.Xauthority.t
+    chmod 644 /tmp/.Xauthority.t
+    echo "export DISPLAY='$TDISPLAY'" >> /tmp/q$BPID
+    echo "export SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> /tmp/q$BPID
+    echo "export XAUTHORITY=/home/$quser/.Xauthority" >> /tmp/q$BPID
+    echo "xauth merge /tmp/.Xauthority.t" >> /tmp/q$BPID
+    echo "export THISFILE='$THISFILE'" >> /tmp/q$BPID
+    echo "export QKEY='$QKEY'" >> /tmp/q$BPID
+    echo "source \$THISFILE" >> /tmp/q$BPID
+
+    if [ $# -gt 0 ]; then
+      echo "bash -c \"$@\"" >> /tmp/q$BPID
+    else
+      echo "bash -i" >> /tmp/q$BPID
+    fi
+    sudo -u $quser /bin/bash /tmp/q$BPID
+    rm -f /tmp/q$BPID
+    rm -f /tmp/.Xauthority.t
+  fi
+}
+export -f sm
 sqsh() {
   HOST=$1
   shift
