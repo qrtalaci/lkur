@@ -134,3 +134,11 @@ sr() {
   source $THISFILE
 }
 export -f sr
+h() {
+  history | grep $1
+}
+export -f h
+hh() {
+  cat ~/.qsh_history | grep $1
+}
+export -f hh
