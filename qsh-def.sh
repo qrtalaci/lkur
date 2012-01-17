@@ -26,7 +26,7 @@ s()  {
     # do the job
     ssh -X -t -o ForwardAgent=yes $HOST "source /tmp/$$qsh.sh; env THISFILE=\"/tmp/$$qsh.sh\" $QENV bash $PPAR"
     # destroy the remote instance
-    ssh $HOST rm -f $RINST
+    ssh $HOST sudo rm -f $RINST
   else
     echo "Public key authentication does not work properly, public key installation required."
     if [ -n "$QKEY" ]; then
@@ -107,6 +107,10 @@ sm() {
     sudo chown $quser:$quser /tmp/.Xauthority.t
     sudo chmod 644 /tmp/.Xauthority.t
     sudo chown $quser $THISFILE
+
+    sudo chown $quser $SSH_AUTH_SOCK
+    sudo chown $quser $(dirname $SSH_AUTH_SOCK)
+
     echo "export DISPLAY='$TDISPLAY'" >> /tmp/q$BPID
     echo "export SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> /tmp/q$BPID
     echo "export XAUTHORITY=\$HOME/.Xauthority" >> /tmp/q$BPID
@@ -114,7 +118,6 @@ sm() {
     echo "export THISFILE='$THISFILE'" >> /tmp/q$BPID
     echo "export QKEY='$QKEY'" >> /tmp/q$BPID
     echo "source \$THISFILE" >> /tmp/q$BPID
-    echo "rm -f \$THISFILE" >> /tmp/q$BPID
 
     if [ $# -gt 0 ]; then
       echo "bash -c \"$@\"" >> /tmp/q$BPID
@@ -122,6 +125,7 @@ sm() {
       echo "bash -i" >> /tmp/q$BPID
     fi
     sudo -H -u $quser /bin/bash /tmp/q$BPID
+
     sudo rm -f /tmp/q$BPID
     sudo rm -f /tmp/.Xauthority.t
   fi
