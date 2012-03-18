@@ -1,5 +1,7 @@
 #!/bin/bash
 
+PS1='\d@\t\n\u@\h:\!:\#:\w$ '
+export HISTIGNORE="&:[ ]*:exit"
 program_name="qsh"
 
 s()  {
