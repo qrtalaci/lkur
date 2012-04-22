@@ -12,8 +12,8 @@ s()  {
   ssh -o PasswordAuthentication=no $HOST "echo 1 >/dev/null"
   PK=$?
   if [ $PK -eq 0 ]; then
-# init the remote instance
-    echo "PublicKey authentication is OK."
+    # init the remote instance
+    #echo "PublicKey authentication is OK."
     scp -q $THISFILE $HOST:$RINST
     if [ $# -gt 1 ]; then
       shift
@@ -70,28 +70,35 @@ s()  {
 export -f s
 
 ss() {
-  BPID=$$
-  rm -f /tmp/q$BPID
-  TDISPLAY=$DISPLAY
-  XATH="$HOME/.Xauthority"
-  cp $XATH ${XATH}.t
-  chmod 644 ${XATH}.t
-  echo "export DISPLAY='$TDISPLAY'" >> /tmp/q$BPID
-  echo "export SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> /tmp/q$BPID
-  echo "export XAUTHORITY=/root/.Xauthority" >> /tmp/q$BPID
-  echo "xauth merge ${XATH}.t" >> /tmp/q$BPID
-  echo "export THISFILE='$THISFILE'" >> /tmp/q$BPID
-  echo "export QKEY='$QKEY'" >> /tmp/q$BPID
-  echo "source \$THISFILE" >> /tmp/q$BPID
 
-  if [ $# -gt 0 ]; then
-    echo "bash -c \"$@\"" >> /tmp/q$BPID
+  echo "x" | sudo -S echo 1
+  SC=$?
+  if [ $SC -eq 0 ]; then
+    BPID=$$
+    rm -f /tmp/q$BPID
+    TDISPLAY=$DISPLAY
+    XATH="$HOME/.Xauthority"
+    cp $XATH ${XATH}.t
+    chmod 644 ${XATH}.t
+    echo "export DISPLAY='$TDISPLAY'" >> /tmp/q$BPID
+    echo "export SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> /tmp/q$BPID
+    echo "export XAUTHORITY=/root/.Xauthority" >> /tmp/q$BPID
+    echo "xauth merge ${XATH}.t" >> /tmp/q$BPID
+    echo "export THISFILE='$THISFILE'" >> /tmp/q$BPID
+    echo "export QKEY='$QKEY'" >> /tmp/q$BPID
+    echo "source \$THISFILE" >> /tmp/q$BPID
+
+    if [ $# -gt 0 ]; then
+      echo "bash -c \"$@\"" >> /tmp/q$BPID
+    else
+      echo "bash -i" >> /tmp/q$BPID
+    fi
+    sudo /bin/bash /tmp/q$BPID
+    rm -f /tmp/q$BPID
+    rm -f $XATH.t
   else
-    echo "bash -i" >> /tmp/q$BPID
+    echo "sudo is not configured properly"
   fi
-  sudo /bin/bash /tmp/q$BPID
-  rm -f /tmp/q$BPID
-  rm -f $XATH.t
 }
 export -f ss
 
@@ -167,7 +174,6 @@ hh() {
 }
 export -f hh
 
-
 shelp() {
   echo "Usage:
     s <hostname> [command(s)]
@@ -181,3 +187,33 @@ shelp() {
   "
 }
 export -f shelp
+
+sdump() {
+  echo "s version 0.01"
+  echo "Current user is: "$(whoami)
+  echo "Current dir is: "$(pwd)
+  echo ""
+  echo "ENVIRONMENT:"
+  echo "DISPLAY="$DISPLAY
+  echo "THISFILE="$THISFILE
+  ls -al $THISFILE
+  echo "SSH_AUTH_SOCK="$SSH_AUTH_SOCK
+  ls -al $SSH_AUTH_SOCK 
+  echo "QKEY="$QKEY
+  echo "S_SSH_OPTS="$S_SSH_OPTS
+}
+: <<=cut
+=pod
+=head1 NAME
+
+  qsh-def.sh - shell script aliases for more effective work
+
+=head1 SYNOPSIS
+
+=head1 DESCRIPTION
+
+=head1 AUTHOR
+
+B<I> qrtalaci@qrtalaci.com
+
+=cut
