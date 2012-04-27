@@ -8,7 +8,7 @@ Put it into your ~/.bashrc:
 --------o<--------
 # lkur installation
 if [ ! -f "$THISFILE" ]; then
-  THISFILE=~/dev/git/lkur/qsh-def.sh
+  THISFILE=<location of qsh-def.sh>
 fi
 if [ -f "$THISFILE" ]; then
   source "$THISFILE"
