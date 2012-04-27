@@ -74,31 +74,35 @@ s()  {
 export -f s
 
 ss() {
-
-  echo "x" | sudo -S echo 1 >/dev/null
+  
+  # detecting NOPASSWD sudo configuration
+  echo "fiwogfhfpwxew" | sudo -S echo 1 >/dev/null
   SC=$?
+
   if [ $SC -eq 0 ]; then
     BPID=$$
-    rm -f /tmp/q$BPID
+    QTMPFILE=/tmp/q$BPID
+    rm -f $QTMPFILE
     TDISPLAY=$DISPLAY
     XATH="$HOME/.Xauthority"
     cp $XATH ${XATH}.t
     chmod 644 ${XATH}.t
-    echo "export DISPLAY='$TDISPLAY'" >> /tmp/q$BPID
-    echo "export SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> /tmp/q$BPID
-    echo "export XAUTHORITY=/root/.Xauthority" >> /tmp/q$BPID
-    echo "xauth merge ${XATH}.t" >> /tmp/q$BPID
-    echo "export THISFILE='$THISFILE'" >> /tmp/q$BPID
-    echo "export QKEY='$QKEY'" >> /tmp/q$BPID
-    echo "source \$THISFILE" >> /tmp/q$BPID
+    echo "export DISPLAY='$TDISPLAY'" >>$QTMPFILE
+    echo "export SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >>$QTMPFILE
+    echo "export XAUTHORITY=/root/.Xauthority" >>$QTMPFILE
+    echo "xauth merge ${XATH}.t" >>$QTMPFILE
+    echo "export THISFILE='$THISFILE'" >>$QTMPFILE
+    echo "export QKEY='$QKEY'" >>$QTMPFILE
+    echo "export S_ID_HISTORY='$(whoami)@$(hostname);$S_ID_HISTORY'" >>$QTMPFILE
+    echo "source \$THISFILE" >>$QTMPFILE
 
     if [ $# -gt 0 ]; then
-      echo "bash -c \"$@\"" >> /tmp/q$BPID
+      echo "bash -c \"$@\"" >>$QTMPFILE
     else
-      echo "bash -i" >> /tmp/q$BPID
+      echo "bash -i" >>$QTMPFILE
     fi
-    sudo /bin/bash /tmp/q$BPID
-    rm -f /tmp/q$BPID
+    sudo /bin/bash $QTMPFILE
+    rm -f $QTMPFILE
     rm -f $XATH.t
   else
     echo "sudo is not configured properly"
@@ -181,7 +185,7 @@ export -f hh
 shelp() {
   echo "Usage:
     s <hostname> [command(s)]
-    ss
+    ss 
     sm <username>
     h <word> : search in bash history
     hh <word> : search in local ${program_name} history
@@ -195,6 +199,7 @@ export -f shelp
 sdump() {
   echo "s version 0.01"
   echo "Current user is: "$(whoami)
+  echo "Current host is: "$(hostname)
   echo "Current dir is: "$(pwd)
   echo ""
   echo "ENVIRONMENT:"
@@ -208,11 +213,14 @@ sdump() {
   echo "S_ID_HISTORY"=$S_ID_HISTORY
 }
 export -f sdump
+
 : <<=cut
 =pod
 =head1 NAME
 
-  qsh-def.sh - shell script aliases for more effective work
+  qsh-def.sh - time saver shell script aliases
+
+  Dependencies: OpenSSH
 
 =head1 SYNOPSIS
 
