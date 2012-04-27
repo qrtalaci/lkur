@@ -184,14 +184,40 @@ export -f hh
 
 shelp() {
   echo "Usage:
-    s <hostname> [command(s)]
-    ss 
-    sm <username>
-    h <word> : search in bash history
-    hh <word> : search in local ${program_name} history
-    sreload : Reload the definition script
-    se : Edit definition script
 
+    s [user]@hostname [command(s)]
+      It provides passphraseless (by RSA/DSA public keys) login with lot of automations: self copy installation and configuration on the destination, X11 forwarding, ssh agent forwarding, breadcrumb management, environment transfer
+      Omitted command results bash invocation.
+      On exit it removes its footprint (only one file in the /tmp directory)
+
+    ss [command(s)]
+      sudo with the s's functionality (X11 forwarding, ...)
+
+    sm user [command()s]
+
+    h <word> 
+      grep word in in bash history file
+
+    hh <word>
+      search in local ${program_name} history
+
+    sreload
+      reload the definition script
+
+    se
+      edit definition script
+
+    sdump
+      print ${program_name} status variables
+
+Tested with:
+  Ubuntu 
+  Debian GNU Linux
+  RedHat Enterprise Linux >4.x
+
+Prerequsities:
+  (most of it are part of default minimal installation of different distros)
+  ...
   "
 }
 export -f shelp
@@ -225,6 +251,10 @@ export -f sdump
 =head1 SYNOPSIS
 
 =head1 DESCRIPTION
+
+=head1 ENVIRONMENT
+
+
 
 =head1 AUTHOR
 
