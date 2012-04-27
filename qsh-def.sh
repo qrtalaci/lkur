@@ -8,6 +8,7 @@ s()  {
   echo "`date` $@" >> ~/.qsh_history
   HOST=$1
   RINST=/tmp/$$qsh.sh
+  HIDBE=$(whoami)"@"$(hostname)
   # test that the PublicKey authentication set properly
   ssh -o PasswordAuthentication=no $HOST "echo 1 >/dev/null"
   PK=$?
@@ -23,8 +24,11 @@ s()  {
     fi
 
     if [ -n "$QKEY" ]; then
-      QENV="QKEY=\""$QKEY"\""
+      QENV="QKEY=\""$QKEY"\" S_ID_HISTORY=\""$HIDBE";"$S_ID_HISTORY"\""
+    else
+      QENV="S_ID_HISTORY=\""$HIDBE";"$S_ID_HISTORY"\""
     fi
+
     # do the job
     ssh -X -t -o ForwardAgent=yes $HOST "source /tmp/$$qsh.sh; env THISFILE=\"/tmp/$$qsh.sh\" $QENV bash $PPAR"
     # destroy the remote instance
@@ -71,7 +75,7 @@ export -f s
 
 ss() {
 
-  echo "x" | sudo -S echo 1
+  echo "x" | sudo -S echo 1 >/dev/null
   SC=$?
   if [ $SC -eq 0 ]; then
     BPID=$$
@@ -201,7 +205,9 @@ sdump() {
   ls -al $SSH_AUTH_SOCK 
   echo "QKEY="$QKEY
   echo "S_SSH_OPTS="$S_SSH_OPTS
+  echo "S_ID_HISTORY"=$S_ID_HISTORY
 }
+export -f sdump
 : <<=cut
 =pod
 =head1 NAME
