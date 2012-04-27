@@ -1,3 +1,0 @@
-#!/bin/bash
-PUB=$(cat id_rsa.pub)
-ssh $1 "if [ -e .ssh/authorized_keys ]; then echo '.ssh authorized_keys exists'; grep rsa-key-20101015 .ssh/authorized_keys; fi"
