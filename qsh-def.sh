@@ -4,6 +4,13 @@ PS1='\d@\t\n\u@\h:\!:\#:\w$ '
 export HISTIGNORE="&:[ ]*:exit"
 program_name="qsh"
 
+alias svnlkc='svn --config-dir=/home/lkurta/.subversion commit -m'
+export svnlkc
+alias svnlku='svn --config-dir=/home/lkurta/.subversion update'
+export svnlku
+alias svnlkco='svn --config-dir=/home/lkurta/.subversion checkout'
+export svnlkco
+
 s()  {
   echo "`date` $@" >> ~/.qsh_history
   HOST=$1
@@ -30,9 +37,9 @@ s()  {
     fi
 
     # do the job
-    ssh -X -t -o ForwardAgent=yes $HOST "source /tmp/$$qsh.sh; env THISFILE=\"/tmp/$$qsh.sh\" $QENV bash $PPAR"
+    ssh -X -t -t -o ForwardAgent=yes $HOST "source /tmp/$$qsh.sh; env THISFILE=\"/tmp/$$qsh.sh\" $QENV bash $PPAR"
     # destroy the remote instance
-    ssh $HOST sudo rm -f $RINST
+    ssh -t -t $HOST sudo rm -f $RINST
   else
     echo "Public key authentication does not work properly, public key installation required."
     if [ -n "$QKEY" ]; then
