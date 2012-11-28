@@ -4,6 +4,9 @@ PS1='\d@\t\n\u@\h:\!:\#:\w$ '
 export HISTIGNORE="&:[ ]*:exit"
 program_name="qsh"
 
+
+bind '"\C-f": "ls -alt | head -n 10\n"'
+
 s()  {
   echo "`date` $@" >> ~/.qsh_history
   HOST=$1
