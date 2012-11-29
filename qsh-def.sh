@@ -39,7 +39,7 @@ s()  {
     # do the job
     ssh -X -t -t -o ForwardAgent=yes $HOST "source /tmp/$$qsh.sh; env THISFILE=\"/tmp/$$qsh.sh\" $QENV bash $PPAR"
     # destroy the remote instance
-    ssh -t -t $HOST sudo rm -f $RINST
+    ssh -t -t $HOST sudo rm -f $RINST 2>/dev/null
   else
     echo "Public key authentication does not work properly, public key installation required."
     if [ -n "$QKEY" ]; then
