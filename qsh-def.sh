@@ -4,7 +4,9 @@ PS1='\d@\t\n\u@\h:\!:\#:\w$ '
 export HISTIGNORE="&:[ ]*:exit"
 program_name="qsh"
 
-alias svnlkc='svn --config-dir=/home/lkurta/.subversion commit -m'
+bind '"\C-f": "ls -alt | head -n 10\n"'
+
+alias svnlkc="svn --config-dir=/home/lkurta/.subversion commit -m"
 export svnlkc
 alias svnlku='svn --config-dir=/home/lkurta/.subversion update'
 export svnlku
